@@ -9,7 +9,8 @@ const databaseUrl = "Workout";
 const collections = ["workouts"];
 
 const db = mongojs(databaseUrl, collections);
-mongoose.connect("mongodb://localhost/workout", {
+const connectionURI = process.env.MONGODB_URI || "mongodb://localhost/workout";
+mongoose.connect(connectionURI, {
   useNewUrlParser: true,
   useFindAndModify: false
 });
@@ -26,13 +27,15 @@ app.get("/stats", function(req, res){
 });
 
 app.get("/api/workouts/range", async function(req, res) {
- await db.workouts.find({}, (error, data) => {
-    if (error) {
-      res.send(error);
-    } else {
-      res.json(data);
-    }
-  });
+//  await db.workouts.find({}, (error, data) => {
+//     if (error) {
+//       res.send(error);
+//     } else {
+//       res.json(data);
+//     }
+//   });
+let workouts = await Workout.find();
+  res.json(workouts);
 });
 
 app.get("/api/workouts", async function(req, res){
@@ -59,7 +62,7 @@ app.put("/api/workouts/:id", async function(req, res){
   let workout = await Workout.findOne({_id: req.params.id});
   
   
-    workout.exercise.push(req.body);
+    workout.exercises.push(req.body);
     Workout.where({_id: workout._id}).update(workout);
     res.json(workout);
   
